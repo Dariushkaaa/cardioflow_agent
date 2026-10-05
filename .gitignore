@@ -1,0 +1,24 @@
+# окружение
+.env
+.venv/
+venv/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# node
+node_modules/
+dist/
+
+# локальные БД и данные
+cardioflow.db
+*.log
+
+# IDE / ОС
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

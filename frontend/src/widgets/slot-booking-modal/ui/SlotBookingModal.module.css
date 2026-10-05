@@ -1,0 +1,130 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 480px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 24px;
+    animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.alertHeader {
+    display: flex;
+    gap: 12px;
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.alertTitle {
+    margin: 0 0 4px 0;
+    color: #991B1B;
+    font-size: 16px;
+}
+
+.alertDesc {
+    margin: 0;
+    color: #7F1D1D;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.slotsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.listTitle {
+    font-weight: 600;
+    font-size: 14px;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.slotItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #E2E8F0;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+.slotDoctor {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.slotTime {
+    font-size: 12px;
+    color: #64748B;
+}
+
+.bookBtn {
+    background: #2563EB;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.cancelLink {
+    background: none;
+    border: none;
+    color: #64748B;
+    font-size: 14px;
+    margin-top: 12px;
+    cursor: pointer;
+    align-self: center;
+}
+
+.successState {
+    text-align: center;
+    padding: 24px 0;
+}
+
+.closeBtn {
+    background: #2563EB;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    margin-top: 16px;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .overlay {
+        align-items: center;
+    }
+
+    .modal {
+        border-radius: 24px;
+    }
+}

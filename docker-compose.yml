@@ -1,0 +1,82 @@
+# CardioFlow: PostgreSQL + backend (FastAPI) + agent (LangGraph) + frontend (React + nginx)
+#
+#   docker compose up --build
+#   фронтенд:   http://localhost:3000
+#   Swagger:    http://localhost:8000/docs   (backend),  http://localhost:8001/docs  (agent)
+#
+# Все переменные ниже имеют значения по умолчанию, .env создавать не обязательно (пример: .env.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cardioflow_db
+    ports:
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d cardioflow_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  agent:
+    build: ./agent
+    environment:
+      BACKEND_API_URL: http://backend:8000/api/v1
+      TIMEZONE: ${TIMEZONE:-Europe/Moscow}
+      # GigaChat (Сбер). Пустой LLM_API_KEY = режим правил (без внешних вызовов).
+      # Значения берутся из .env рядом с docker-compose.yml (см. .env.example).
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-GigaChat}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.giga.chat/v1}
+      LLM_PROVIDER: ${LLM_PROVIDER:-auto}
+      LLM_AUTH_URL: ${LLM_AUTH_URL:-https://ngw.devices.sberbank.ru:9443/api/v2/oauth}
+      LLM_SCOPE: ${LLM_SCOPE:-GIGACHAT_API_PERS}
+      LLM_VERIFY_SSL: ${LLM_VERIFY_SSL:-false}
+      LLM_CA_BUNDLE: ${LLM_CA_BUNDLE:-}
+    ports:
+      - "${AGENT_PORT:-8001}:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://user:password@db:5432/cardioflow_db
+      SECRET_KEY: ${SECRET_KEY:-cardioflow-dev-secret-change-me-in-production}
+      AGENT_SERVICE_URL: http://agent:8001/api/v1/agent/process
+      TIMEZONE: ${TIMEZONE:-Europe/Moscow}
+      AUTO_CREATE_TABLES: "true"
+      SEED_DEMO_DATA: "true"
+      ENABLE_DEV_TOKEN: "true"
+      ENABLE_SCHEDULER: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      agent:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+
+volumes:
+  pgdata:
